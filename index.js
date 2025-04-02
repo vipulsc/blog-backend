@@ -2,18 +2,19 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv").config();
 const cookieParser = require("cookie-parser");
-
 const { userRoute } = require("./routes/user");
+const { blogRoute } = require("./routes/blog");
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/blog", blogRoute);
+
 async function main() {
   try {
     await mongoose.connect(process.env.MONGO_URL);
-
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
   } catch (error) {
