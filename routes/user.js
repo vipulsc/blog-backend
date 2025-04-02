@@ -3,7 +3,9 @@ const z = require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { userModel } = require("../db");
+const dotenv = require("dotenv").config();
 userRoute = Router();
+const userSecret = process.env.userSecret;
 
 const userSchema = z.object({
   username: z.string(),
@@ -46,20 +48,30 @@ userRoute.post("/login", async (req, res) => {
     if (!existUser) {
       return res.status(403).json({ message: "Please signUp" });
     }
-
     const isPasswordValid = await bcrypt.compare(password, existUser.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    const token = jwt.sign({ userId: existUser._id }, "your_secret_key", {
+    const token = jwt.sign({ userId: existUser._id }, userSecret, {
       expiresIn: "1h",
     });
+    console.log(token);
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+    });
 
-    res.send;
+    res.status(201).json({ message: "User login successfully" });
   } catch (error) {
     console.log("login", error);
     res.status(201).json({ message: "Internal Server Error" });
   }
 });
+
+
+
+module.exports = {
+  userRoute,
+};
